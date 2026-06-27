@@ -86,3 +86,26 @@ The system displays one of three transparency labels based on the final confiden
 | High-confidence Human-written | **This content is likely human-written.** Our analysis found strong signs that this text was written by a person. |
 
 The goal of these labels is to explain the result in simple language rather than making absolute claims. Since AI detection is not perfect, the labels describe what the system believes based on the available evidence instead of stating that the result is certain.
+
+## Appeals Workflow
+
+A creator can submit an appeal if they believe their content was classified incorrectly. To submit an appeal, they must provide the content ID from the original submission and a short explanation of why they disagree with the result.
+
+When an appeal is received, the system will:
+
+1. Verify that the content ID exists.
+2. Save the creator's reasoning.
+3. Update the content status to **Under Review**.
+4. Add the appeal to the audit log along with the original classification.
+5. Return a confirmation that the appeal has been received.
+
+The system does not automatically reclassify the content after an appeal. Instead, the appeal is recorded for manual review.
+
+A reviewer viewing the appeal would be able to see:
+- The original submitted text
+- The attribution result
+- The individual signal scores
+- The final confidence score
+- The transparency label shown to the creator
+- The creator's appeal reasoning
+- The current status of the submission
