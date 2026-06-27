@@ -179,3 +179,68 @@ Poems, song lyrics, or short stories often break normal writing patterns on purp
 
 ### 4. Very short submissions
 A short sentence or paragraph may not provide enough information for either detection signal to make a reliable decision. In these cases, the system is more likely to return an **Uncertain** result.
+
+## AI Tool Plan
+
+### Milestone 3: Submission Endpoint and First Detection Signal
+
+**Sections to provide:**
+- Architecture
+- Detection Signals
+
+**What I will ask the AI tool to generate:**
+- Flask application skeleton
+- `POST /submit` endpoint
+- LLM-based detection function
+- Basic audit log setup
+- `GET /log` endpoint
+
+**How I will verify the output:**
+- Review the generated code to ensure it matches my planned API design and function behavior.
+- Run the Flask server successfully.
+- Test the `/submit` endpoint with sample text.
+- Verify that a content ID is generated.
+- Check that an audit log entry is created.
+- Confirm that `GET /log` returns the stored entries.
+
+---
+
+### Milestone 4: Second Detection Signal and Confidence Scoring
+
+**Sections to provide:**
+- Detection Signals
+- Confidence Score and Uncertainty
+- Architecture
+
+**What I will ask the AI tool to generate:**
+- Stylometric detection function
+- Confidence score calculation
+- Logic for combining both signal scores
+
+**How I will verify the output:**
+- Review the scoring logic to ensure it matches the thresholds defined in this plan.
+- Test several different writing samples.
+- Confirm that clearly human and clearly AI-generated text receive noticeably different confidence scores.
+- Verify that both individual signal scores are included in the audit log.
+
+---
+
+### Milestone 5: Production Features
+
+**Sections to provide:**
+- Transparency Labels
+- Appeals Workflow
+- Architecture
+
+**What I will ask the AI tool to generate:**
+- Transparency label generation
+- `POST /appeal` endpoint
+- Rate limiting for the submission endpoint
+- Appeal logging and status updates
+
+**How I will verify the output:**
+- Review the generated code to ensure it follows the planned appeals workflow and label logic.
+- Test all three transparency label variants.
+- Submit an appeal and confirm the status changes to **Under Review**.
+- Verify that the appeal appears in the audit log.
+- Test the rate limit and confirm that additional requests return a 429 response.
