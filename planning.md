@@ -74,3 +74,15 @@ This approach helps reduce false positives, since incorrectly labeling a human a
 The final confidence score is calculated by taking the average of the LLM score and the stylometric score. Both signals contribute equally because they measure different aspects of the text.
 
 The thresholds are intentionally conservative. A submission is only classified as AI-generated when the combined confidence score is high. If the signals disagree or neither signal is confident enough, the system returns an **Uncertain** label instead of making a strong claim. This helps reduce false positives, since incorrectly labeling a human author's work as AI-generated can be more harmful than leaving the result uncertain.
+
+## Transparency Labels
+
+The system displays one of three transparency labels based on the final confidence score.
+
+| Result | Label Text |
+| ------ | ---------- |
+| High-confidence AI-generated | **This content is likely AI-generated.** Our analysis found strong signs that this text was created with the help of AI. |
+| Uncertain | **We could not determine how this content was created with high confidence.** The available signals were mixed, so no strong conclusion was made. |
+| High-confidence Human-written | **This content is likely human-written.** Our analysis found strong signs that this text was written by a person. |
+
+The goal of these labels is to explain the result in simple language rather than making absolute claims. Since AI detection is not perfect, the labels describe what the system believes based on the available evidence instead of stating that the result is certain.
