@@ -13,3 +13,42 @@ When a user submits a piece of text, the request first reaches the `POST /submit
 The outputs from both signals are combined into a single confidence score. Based on this score, the system generates a transparency label that explains the result in simple language. The complete decision, including the individual signal scores and final confidence score, is stored in the audit log before the response is returned to the user.
 
 If a creator believes the classification is incorrect, they can submit an appeal using the `POST /appeal` endpoint. The system records the creator's reasoning, updates the content status to **Under Review**, adds the appeal to the audit log, and returns a confirmation response.
+
+## Detection Signals
+
+Provenance Guard uses two signals to decide whether a piece of text looks more like human writing or AI writing.
+
+### Signal 1: LLM-based classification
+This signal sends the text to a language model and asks it to judge whether the writing feels more human or more AI-generated.
+
+What it measures:
+- Overall style
+- Sentence flow
+- How polished or repetitive the writing feels
+
+Why it is useful:
+- It can catch patterns that are hard to describe with simple rules.
+- It looks at the text as a whole, not just small statistics.
+
+What it misses:
+- It can be fooled by carefully edited AI writing.
+- It may sometimes mistake formal human writing for AI writing.
+
+### Signal 2: Stylometric heuristics
+This signal checks measurable text patterns such as sentence length variation, vocabulary diversity, and punctuation use.
+
+What it measures:
+- How much sentence length changes
+- How many different words are used
+- How consistent the punctuation style is
+
+Why it is useful:
+- It is fast and easy to compute.
+- It gives a second view that is different from the LLM signal.
+
+What it misses:
+- It does not understand meaning.
+- A human who writes in a very polished or repetitive style may look more like AI.
+
+### How the signals work together
+The two signals are combined into one confidence score. The final score should not come from only one signal. If the signals disagree, the result should lean toward uncertainty instead of forcing a strong decision.
