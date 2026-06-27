@@ -109,3 +109,19 @@ A reviewer viewing the appeal would be able to see:
 - The transparency label shown to the creator
 - The creator's appeal reasoning
 - The current status of the submission
+
+## Anticipated Edge Cases
+
+Although the system uses multiple detection signals, there are situations where the results may not be accurate.
+
+### 1. Formal human writing
+Academic papers, research articles, or professional reports often have a consistent writing style and formal language. The LLM may consider this similar to AI-generated writing, and the stylometric heuristics may also detect low variation in sentence structure. This could increase the confidence score even though the content was written by a person.
+
+### 2. Heavily edited AI-generated content
+AI-generated text that has been rewritten by a human may look much more natural than the original output. Since both signals rely on writing patterns, the system may classify this type of content as human-written or produce an uncertain result.
+
+### 3. Creative writing
+Poems, song lyrics, or short stories often break normal writing patterns on purpose. Repeated words, unusual punctuation, or very short sentences may affect the stylometric signal, even though the writing is completely human.
+
+### 4. Very short submissions
+A short sentence or paragraph may not provide enough information for either detection signal to make a reliable decision. In these cases, the system is more likely to return an **Uncertain** result.
