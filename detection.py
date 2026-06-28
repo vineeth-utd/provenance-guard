@@ -1,5 +1,7 @@
 import json
+import math
 import os
+import re
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -49,3 +51,42 @@ def groq_detect(text: str) -> dict:
         return {"attribution": "Uncertain", "llm_score": 0.5}
 
     return {"attribution": _score_to_attribution(score), "llm_score": score}
+
+
+def stylometric_detect(text: str) -> dict:
+    try:
+        words = re.findall(r"[a-zA-Z]+", text)
+        sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
+
+        # Sub-score 1: sentence length variation
+        if len(sentences) >= 2:
+            lengths = [len(s.split()) for s in sentences]
+            mean = sum(lengths) / len(lengths)
+            std = math.sqrt(sum((l - mean) ** 2 for l in lengths) / len(lengths))
+            cv = std / mean if mean > 0 else 0
+            sent_score = max(0.0, 1.0 - min(cv, 1.0))
+        else:
+            sent_score = 0.5
+
+        # Sub-score 2: vocabulary diversity (type-token ratio)
+        if len(words) >= 10:
+            ttr = len(set(w.lower() for w in words)) / len(words)
+            vocab_score = ttr
+        else:
+            vocab_score = 0.5
+
+        # Sub-score 3: punctuation density
+        if words:
+            MAX_PUNCT_DENSITY = 0.2
+            punct_count = len(re.findall(r"[,;:]", text))
+            density = punct_count / len(words)
+            punct_score = min(density / MAX_PUNCT_DENSITY, 1.0)
+        else:
+            punct_score = 0.5
+
+        score = round((sent_score + vocab_score + punct_score) / 3, 4)
+        score = max(0.0, min(1.0, score))
+    except Exception:
+        return {"stylometric_score": 0.5}
+
+    return {"stylometric_score": score}
