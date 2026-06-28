@@ -14,3 +14,7 @@ env/
 
 # macOS
 .DS_Store
+
+# Runtime data files
+audit_log.json
+submissions.json
