@@ -29,5 +29,10 @@ def save_submission(record: dict):
     _write_json(SUBMISSIONS_FILE, submissions)
 
 
+def get_submission(content_id: str) -> dict | None:
+    submissions = _read_json(SUBMISSIONS_FILE, {})
+    return submissions.get(content_id)
+
+
 def get_log() -> list:
     return _read_json(AUDIT_LOG_FILE, [])

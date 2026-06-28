@@ -26,7 +26,7 @@ def submit():
     combined = calculate_confidence(llm_score, stylometric_score)
     confidence = combined["confidence"]
     attribution = combined["attribution"]
-    label = "Analysis pending"
+    label = combined["label"]
     timestamp = datetime.now(timezone.utc).isoformat()
 
     audit.append_log({
@@ -58,6 +58,40 @@ def submit():
         "attribution": attribution,
         "confidence": confidence,
         "label": label,
+    }), 200
+
+
+@app.route("/appeal", methods=["POST"])
+def appeal():
+    body = request.get_json(silent=True) or {}
+    content_id = body.get("content_id", "").strip()
+    creator_reasoning = body.get("creator_reasoning", "").strip()
+
+    if not content_id or not creator_reasoning:
+        return jsonify({"error": "Both 'content_id' and 'creator_reasoning' are required."}), 400
+
+    submission = audit.get_submission(content_id)
+    if submission is None:
+        return jsonify({"error": "No submission found for the given content_id."}), 404
+
+    submission["status"] = "under_review"
+    audit.save_submission(submission)
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+    audit.append_log({
+        "event": "appeal",
+        "timestamp": timestamp,
+        "content_id": content_id,
+        "creator_reasoning": creator_reasoning,
+        "attribution": submission["attribution"],
+        "confidence": submission["confidence"],
+        "label": submission["label"],
+    })
+
+    return jsonify({
+        "content_id": content_id,
+        "status": "under_review",
+        "message": "Your appeal has been received and is under review.",
     }), 200
 
 

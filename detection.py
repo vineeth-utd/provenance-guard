@@ -34,6 +34,14 @@ def _score_to_attribution(score: float) -> str:
     return "Likely AI-generated"
 
 
+def _confidence_to_label(confidence: float) -> str:
+    if confidence <= 0.39:
+        return "This content is likely human-written. Our analysis found strong signs that this text was written by a person."
+    if confidence <= 0.69:
+        return "We could not determine how this content was created with high confidence. The available signals were mixed, so no strong conclusion was made."
+    return "This content is likely AI-generated. Our analysis found strong signs that this text was created with the help of AI."
+
+
 def groq_detect(text: str) -> dict:
     try:
         response = _client.chat.completions.create(
@@ -55,7 +63,11 @@ def groq_detect(text: str) -> dict:
 
 def calculate_confidence(llm_score: float, stylometric_score: float) -> dict:
     confidence = round((llm_score + stylometric_score) / 2, 4)
-    return {"confidence": confidence, "attribution": _score_to_attribution(confidence)}
+    return {
+        "confidence": confidence,
+        "attribution": _score_to_attribution(confidence),
+        "label": _confidence_to_label(confidence),
+    }
 
 
 def stylometric_detect(text: str) -> dict:
