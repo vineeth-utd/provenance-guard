@@ -236,3 +236,84 @@ The following limits are applied to the `POST /submit` endpoint:
 These limits were chosen based on the expected behavior of a writing platform. Most creators submit completed drafts or occasional revisions rather than dozens of requests every minute. Allowing up to **10 submissions per minute** provides enough flexibility for legitimate users while discouraging automated abuse. The **100 requests per day** limit acts as a safeguard against scripts repeatedly calling the API and consuming unnecessary resources.
 
 The implementation was verified by sending more than ten requests within one minute. The first ten requests returned **HTTP 200**, while subsequent requests returned **HTTP 429 (Too Many Requests)**, confirming that the rate limiting was working as expected.
+
+## Audit Log
+
+Every submission and appeal is recorded in a structured audit log. The log provides a complete history of the system's decisions, making it easier to review classifications, investigate issues, and track appeals.
+
+Each submission entry includes:
+
+* Timestamp
+* Content ID
+* Creator ID
+* Attribution result
+* LLM detection score
+* Stylometric detection score
+* Combined confidence score
+* Transparency label
+
+Appeal entries additionally include:
+
+* Event type (`appeal`)
+* Creator reasoning
+* Updated submission status
+
+The audit log is stored as structured JSON and can be viewed through the `GET /log` endpoint. This makes it easy to inspect previous classifications and verify that the system is recording the information needed for transparency and debugging.
+
+### Sample Audit Log Entry
+
+```json
+{
+    "timestamp": "2026-06-28T02:33:32.360799+00:00",
+    "content_id": "33d93f23-98b4-418e-93d2-6beedc250644",
+    "creator_id": "test",
+    "text_preview": "The meeting went well. We discussed the quarterly targets and agreed on next steps. Everyone seemed ",
+    "attribution": "Likely Human-written",
+    "llm_score": 0.21,
+    "stylometric_score": 0.5006,
+    "confidence": 0.3553,
+    "label": "This content is likely human-written. Our analysis found strong signs that this text was written by a person."
+}
+```
+
+## Known Limitations
+
+Although Provenance Guard uses two independent detection signals, it is not able to classify every type of writing perfectly.
+
+### Formal Human Writing
+
+Academic papers, research articles, or other highly structured writing may be classified as **Uncertain** or even **Likely AI-generated**. Formal writing often shares characteristics with AI-generated text, such as consistent sentence structure and polished language, which can influence both the LLM and stylometric signals.
+
+### Heavily Edited AI-generated Content
+
+If AI-generated text has been significantly rewritten by a human, the writing may no longer contain many of the patterns used by the detection signals. In these cases, the system may classify the content as **Likely Human-written** or **Uncertain**.
+
+### Creative Writing
+
+Poems, song lyrics, or experimental writing often use unusual sentence structures, repeated words, or unconventional punctuation. These characteristics can affect the stylometric heuristics, making them less reliable for creative content.
+
+These limitations highlight why the system communicates uncertainty through confidence scores and transparency labels instead of making absolute claims about how a piece of content was created.
+
+## Spec Reflection
+
+Writing the project specification before starting the implementation made the development process much smoother. Defining the system architecture, confidence score thresholds, transparency labels, and API endpoints early helped keep the implementation focused and reduced the number of design decisions that had to be made while coding.
+
+One area where the implementation differed from the original plan was the storage design. Instead of storing everything in a single audit log, the project uses two JSON files: `submissions.json` stores the current state of each submission, while `audit_log.json` maintains an append-only history of submissions and appeals. Separating the current state from the historical log made it easier to update submission status during the appeals workflow while preserving a complete audit trail.
+
+## AI Usage
+
+AI tools were used to assist with implementation, but every generated change was reviewed, tested, and adjusted before being accepted.
+
+### Instance 1: Flask API and Project Structure
+
+I used Claude Code to generate the initial Flask application structure, including the `/submit` and `/log` endpoints, JSON storage helpers, and the basic project scaffolding.
+
+Before accepting the implementation, I reviewed the proposed file structure, simplified a few implementation details, and chose to separate the current submission state (`submissions.json`) from the append-only audit history (`audit_log.json`) to better support the appeals workflow.
+
+---
+
+### Instance 2: Detection Pipeline and Production Features
+
+I used Claude Code to help implement the Groq detection signal, the stylometric detection function, confidence scoring, transparency labels, the appeals workflow, and rate limiting.
+
+Each milestone was completed independently using a plan-first workflow. Before any code was generated, I reviewed the proposed implementation, requested changes where necessary, and verified the completed functionality through manual API testing. Examples of changes I made included refining the detection prompts, adjusting implementation details to match the project specification, and ensuring the confidence scoring, transparency labels, and appeals workflow followed the design documented in `planning.md`.
