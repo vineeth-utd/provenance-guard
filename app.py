@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 
 import audit
-from detection import groq_detect
+from detection import calculate_confidence, groq_detect, stylometric_detect
 
 app = Flask(__name__)
 
@@ -19,10 +19,13 @@ def submit():
         return jsonify({"error": "Both 'text' and 'creator_id' are required."}), 400
 
     content_id = str(uuid.uuid4())
-    detection = groq_detect(text)
-    attribution = detection["attribution"]
-    llm_score = detection["llm_score"]
-    confidence = 0.5
+    llm_result = groq_detect(text)
+    llm_score = llm_result["llm_score"]
+    stylometric_result = stylometric_detect(text)
+    stylometric_score = stylometric_result["stylometric_score"]
+    combined = calculate_confidence(llm_score, stylometric_score)
+    confidence = combined["confidence"]
+    attribution = combined["attribution"]
     label = "Analysis pending"
     timestamp = datetime.now(timezone.utc).isoformat()
 
@@ -33,6 +36,7 @@ def submit():
         "text_preview": text[:100],
         "attribution": attribution,
         "llm_score": llm_score,
+        "stylometric_score": stylometric_score,
         "confidence": confidence,
         "label": label,
     })
@@ -43,6 +47,7 @@ def submit():
         "text": text,
         "attribution": attribution,
         "llm_score": llm_score,
+        "stylometric_score": stylometric_score,
         "confidence": confidence,
         "label": label,
         "status": "reviewed",

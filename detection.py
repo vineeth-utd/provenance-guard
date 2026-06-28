@@ -53,6 +53,11 @@ def groq_detect(text: str) -> dict:
     return {"attribution": _score_to_attribution(score), "llm_score": score}
 
 
+def calculate_confidence(llm_score: float, stylometric_score: float) -> dict:
+    confidence = round((llm_score + stylometric_score) / 2, 4)
+    return {"confidence": confidence, "attribution": _score_to_attribution(confidence)}
+
+
 def stylometric_detect(text: str) -> dict:
     try:
         words = re.findall(r"[a-zA-Z]+", text)
