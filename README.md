@@ -154,3 +154,40 @@ Stylometric heuristics cannot understand the meaning or context of the text. Cre
 Each signal has different strengths and weaknesses.
 
 The LLM focuses on meaning, writing style, and overall language patterns, while the stylometric signal focuses on measurable characteristics of the text. Combining both signals produces a more balanced confidence score than relying on either signal alone and helps reduce the chances of making an overconfident classification.
+
+## Confidence Scoring
+
+Each detection signal produces a score between **0** and **1**, where a higher value indicates that the text is more likely to be AI-generated.
+
+The final confidence score is calculated by taking the average of the two detection signals:
+
+* LLM detection score
+* Stylometric detection score
+
+Both signals contribute equally because they measure different properties of the text. The LLM focuses on writing style and semantics, while the stylometric signal focuses on measurable structural characteristics.
+
+The final confidence score is mapped to one of three categories:
+
+| Confidence Score | Result               |
+| ---------------- | -------------------- |
+| **0.00 – 0.39**  | Likely Human-written |
+| **0.40 – 0.69**  | Uncertain            |
+| **0.70 – 1.00**  | Likely AI-generated  |
+
+These thresholds were intentionally chosen to be conservative. If the two detection signals disagree or neither signal is confident enough, the system returns an **Uncertain** result instead of making a strong claim. This helps reduce false positives, where human-written content is incorrectly labeled as AI-generated.
+
+### Example Results
+
+The confidence scoring approach was tested using four representative writing samples.
+
+| Sample                                | LLM Score | Stylometric Score | Final Confidence | Result               |
+| ------------------------------------- | --------: | ----------------: | ---------------: | -------------------- |
+| Clearly AI-generated paragraph        |      0.82 |            0.5790 |       **0.6995** | Likely AI-generated  |
+| Clearly Human-written paragraph       |      0.21 |            0.4213 |       **0.3156** | Likely Human-written |
+| Formal Human-written paragraph        |      0.42 |            0.5349 |       **0.4775** | Uncertain            |
+| Lightly Edited AI-generated paragraph |      0.42 |            0.5039 |       **0.4619** | Uncertain            |
+
+The examples represent four different writing styles: a clearly AI-generated passage, a casual human-written paragraph, a formal human-written paragraph, and a lightly edited AI-generated paragraph.
+
+These results show that the confidence score varies meaningfully across different types of writing instead of always producing similar values. Clearly human-written and AI-generated text receive noticeably different confidence scores, while more ambiguous cases fall into the **Uncertain** range.
+
