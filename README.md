@@ -276,6 +276,79 @@ The audit log is stored as structured JSON and can be viewed through the `GET /l
 }
 ```
 
+## Setup and Running the Project
+
+### Prerequisites
+
+* Python 3.11 or later
+* A Groq API key
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd provenance-guard
+```
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+
+# macOS / Linux
+source .venv/bin/activate
+
+# Windows (Git Bash)
+source .venv/Scripts/activate
+```
+
+Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create a `.env` file in the project root and add your Groq API key:
+
+```text
+GROQ_API_KEY=your_api_key_here
+```
+
+### Run the Application
+
+Start the Flask server:
+
+```bash
+python app.py
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:5000
+```
+
+### Available Endpoints
+
+| Method | Endpoint  | Description                                     |
+| ------ | --------- | ----------------------------------------------- |
+| POST   | `/submit` | Submit text for AI attribution analysis.        |
+| POST   | `/appeal` | Submit an appeal for a previous classification. |
+| GET    | `/log`    | View the structured audit log.                  |
+
+### Example Request
+
+```bash
+curl -X POST http://127.0.0.1:5000/submit \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "This is a sample submission.",
+    "creator_id": "demo-user"
+  }'
+```
+
 ## Known Limitations
 
 Although Provenance Guard uses two independent detection signals, it is not able to classify every type of writing perfectly.
