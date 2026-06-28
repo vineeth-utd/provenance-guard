@@ -10,7 +10,7 @@ The system is designed to be transparent and fair. Every classification is recor
 * Flask
 * Groq API (`llama-3.3-70b-versatile`)
 * Flask-Limiter
-* JSON file storage
+* JSON-based storage
 
 ## Architecture Overview
 
@@ -260,7 +260,7 @@ Appeal entries additionally include:
 
 The audit log is stored as structured JSON and can be viewed through the `GET /log` endpoint. This makes it easy to inspect previous classifications and verify that the system is recording the information needed for transparency and debugging.
 
-### Sample Audit Log Entry
+### Sample Submission Entries
 
 ```json
 {
@@ -274,6 +274,48 @@ The audit log is stored as structured JSON and can be viewed through the `GET /l
     "confidence": 0.3553,
     "label": "This content is likely human-written. Our analysis found strong signs that this text was written by a person."
 }
+```
+
+```json
+{
+    "timestamp": "2026-06-28T02:43:47.396401+00:00",
+    "content_id": "345a0835-5a30-4f1b-b365-86ed532f61a4",
+    "creator_id": "creator1",
+    "text_preview": "So I finally tried that new ramen place downtown and honestly it was way better than I expected. The",
+    "attribution": "Uncertain",
+    "llm_score": 0.21,
+    "stylometric_score": 0.6165,
+    "confidence": 0.4133,
+    "label": "We could not determine how this content was created with high confidence. The available signals were mixed, so no strong conclusion was made."
+}
+```
+
+```json
+{
+    "timestamp": "2026-06-28T02:32:36.859166+00:00",
+    "content_id": "2eeca1c4-e77b-47fc-b669-94b8850f3a29",
+    "creator_id": "test",
+    "text_preview": "Artificial intelligence has fundamentally transformed the landscape of modern industries by enabling",
+    "attribution": "Likely AI-generated",
+    "llm_score": 0.85,
+    "stylometric_score": 0.6734,
+    "confidence": 0.7617,
+    "label": "This content is likely AI-generated. Our analysis found strong signs that this text was created with the help of AI."
+}
+```
+
+### Sample Audit Log Entry - Appeal
+
+```json
+{
+    "event": "appeal",
+    "timestamp": "2026-06-28T02:43:54.075637+00:00",
+    "content_id": "345a0835-5a30-4f1b-b365-86ed532f61a4",
+    "creator_reasoning": "I wrote this myself, it is my own words.",
+    "attribution": "Uncertain",
+    "confidence": 0.4133,
+    "label": "We could not determine how this content was created with high confidence. The available signals were mixed, so no strong conclusion was made."
+  }
 ```
 
 ## Setup and Running the Project
