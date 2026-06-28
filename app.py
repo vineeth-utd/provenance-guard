@@ -2,14 +2,25 @@ import uuid
 from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 import audit
 from detection import calculate_confidence, groq_detect, stylometric_detect
 
 app = Flask(__name__)
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    storage_uri="memory://",
+    default_limits=[],
+)
+
 
 @app.route("/submit", methods=["POST"])
+@limiter.limit("10 per minute")
+@limiter.limit("100 per day")
 def submit():
     body = request.get_json(silent=True) or {}
     text = body.get("text", "").strip()
