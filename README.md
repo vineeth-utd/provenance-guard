@@ -191,3 +191,15 @@ The examples represent four different writing styles: a clearly AI-generated pas
 
 These results show that the confidence score varies meaningfully across different types of writing instead of always producing similar values. Clearly human-written and AI-generated text receive noticeably different confidence scores, while more ambiguous cases fall into the **Uncertain** range.
 
+## Transparency Labels
+
+Instead of only showing a confidence score, Provenance Guard displays a plain-language transparency label that explains the result in a way that is easy for non-technical users to understand.
+
+| Result                   | Label Text                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Likely AI-generated**  | **This content is likely AI-generated.** Our analysis found strong signs that this text was created with the help of AI.                          |
+| **Uncertain**            | **We could not determine how this content was created with high confidence.** The available signals were mixed, so no strong conclusion was made. |
+| **Likely Human-written** | **This content is likely human-written.** Our analysis found strong signs that this text was written by a person.                                 |
+
+The labels are designed to communicate the system's assessment without making absolute claims. AI attribution is not a solved problem, so the system uses words such as **"likely"** and provides an **Uncertain** category whenever the available evidence does not strongly support either outcome. This helps reduce the risk of presenting an overconfident or misleading result to users.
+
