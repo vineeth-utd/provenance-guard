@@ -203,3 +203,36 @@ Instead of only showing a confidence score, Provenance Guard displays a plain-la
 
 The labels are designed to communicate the system's assessment without making absolute claims. AI attribution is not a solved problem, so the system uses words such as **"likely"** and provides an **Uncertain** category whenever the available evidence does not strongly support either outcome. This helps reduce the risk of presenting an overconfident or misleading result to users.
 
+## Appeals Workflow
+
+Provenance Guard allows creators to appeal a classification if they believe their content was incorrectly identified. This provides a way to challenge the system's decision instead of treating the classification as final.
+
+To submit an appeal, the creator provides:
+
+* The `content_id` returned by the original submission.
+* A short explanation describing why they believe the classification is incorrect.
+
+When an appeal is received, the system:
+
+1. Validates that the provided `content_id` exists.
+2. Updates the submission status to `under_review`.
+3. Records the creator's reasoning.
+4. Appends a new appeal entry to the audit log while preserving the original classification details.
+5. Returns a confirmation that the appeal has been received.
+
+The system does not automatically reclassify the content after an appeal is submitted. Instead, the appeal is recorded for manual review, allowing the original classification and the creator's explanation to be reviewed together.
+
+## Rate Limiting
+
+To prevent abuse and protect the Groq API from excessive requests, the submission endpoint is protected using **Flask-Limiter**.
+
+The following limits are applied to the `POST /submit` endpoint:
+
+| Limit                      | Purpose                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| **10 requests per minute** | Prevents rapid bursts of requests from a single client while allowing normal usage.       |
+| **100 requests per day**   | Prevents excessive API usage over a longer period and helps control resource consumption. |
+
+These limits were chosen based on the expected behavior of a writing platform. Most creators submit completed drafts or occasional revisions rather than dozens of requests every minute. Allowing up to **10 submissions per minute** provides enough flexibility for legitimate users while discouraging automated abuse. The **100 requests per day** limit acts as a safeguard against scripts repeatedly calling the API and consuming unnecessary resources.
+
+The implementation was verified by sending more than ten requests within one minute. The first ten requests returned **HTTP 200**, while subsequent requests returned **HTTP 429 (Too Many Requests)**, confirming that the rate limiting was working as expected.
